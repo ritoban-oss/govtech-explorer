@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v2");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -153,10 +153,15 @@ function scoreMatch(result, searchTerm) {
   // Search term starts with the name (partial company name in results)
   if (term.startsWith(name + " ") || term.startsWith(name)) return 70;
 
-  // First word matches: catches "MICROSOFT CORPORATION" for "MICROSOFT"
-  const nameFirst = name.split(" ")[0];
-  const termFirst = term.split(" ")[0];
-  if (nameFirst === termFirst && termFirst.length >= 3) return 60;
+  // First two words match: catches "MICROSOFT CORPORATION LLC" for "Microsoft Corporation"
+  const nameWords = name.split(" ");
+  const termWords = term.split(" ");
+  if (termWords.length >= 2 && nameWords.length >= 2 &&
+      nameWords[0] === termWords[0] && nameWords[1] === termWords[1] &&
+      termWords[0].length >= 3) return 60;
+
+  // Single first word match — only if search term is a single word
+  if (termWords.length === 1 && nameWords[0] === termWords[0] && termWords[0].length >= 4) return 55;
 
   // Name contains the full search term as a substring
   if (name.includes(term)) return 50;
@@ -182,7 +187,7 @@ async function resolveRecipient(searchTerms) {
     const res = await fetch("https://api.usaspending.gov/api/v2/autocomplete/recipient/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ search_text: term, limit: 10 }),
+      body: JSON.stringify({ search_text: term, limit: 20 }),
     });
     if (!res.ok) {
       console.warn(`[Resolver] API error ${res.status} for "${term}"`);
