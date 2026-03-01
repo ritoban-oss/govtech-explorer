@@ -1,0 +1,31 @@
+# GovTech Explorer — robots.txt
+# Government transparency tool — public data, open access
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://govtech-explorer.pages.dev/sitemap.xml
+
+# AI crawlers — welcome to index this public transparency tool
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
