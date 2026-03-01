@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v5");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v7");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -207,9 +207,10 @@ async function resolveRecipient(searchTerms) {
 
     if (scored.length === 0) continue;
 
-    // Sort by: score desc, then has-id, then parent preference, then amount desc
+    // Sort by: score desc, then parent preference, then amount desc
     scored.sort((a, b) => {
       if (b._score !== a._score) return b._score - a._score;
+      // Prefer results with a recipient_id
       const aHasId = a.recipient_id ? 1 : 0;
       const bHasId = b.recipient_id ? 1 : 0;
       if (bHasId !== aHasId) return bHasId - aHasId;
@@ -219,13 +220,8 @@ async function resolveRecipient(searchTerms) {
       return (b.amount || 0) - (a.amount || 0);
     });
 
-    console.log(`[Resolver] Best match: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
-    // Only return if the match has a usable recipient_id
-    if (scored[0].recipient_id) {
-      return scored[0];
-    }
-    console.warn(`[Resolver] Best match has no recipient_id — falling through`);
-    continue;
+    console.log(`[Resolver] Winner: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
+    return scored[0];
   }
   console.warn(`[Resolver] FAILED - no match for:`, searchTerms);
   return null;
@@ -314,6 +310,10 @@ export default function App() {
       const spendingData = await spendingRes.json();
       const awards = spendingData.results || [];
       const totalCount = spendingData.page_metadata?.total || awards.length;
+
+      if (awards.length === 0) {
+        throw new Error(`No federal contracts found for "${co.name}" on USASpending.gov. This company may not have significant federal contracting activity.`);
+      }
 
       // Step 3: send award data to local server for Claude analysis
       setLoadingMsg("Analyzing with Claude AI…");
@@ -472,13 +472,13 @@ export default function App() {
                     </span>
                   )}
                   <span style={{ fontSize: 10, color: "#475569" }}>
-                    ({resolvedEntity.recipient_id?.endsWith("-P") ? "Parent" : resolvedEntity.recipient_id?.endsWith("-C") ? "Child" : "Standalone"} entity)
+                    ({resolvedEntity.recipient_id?.endsWith("-P") ? "Parent" : resolvedEntity.recipient_id?.endsWith("-C") ? "Child" : resolvedEntity.recipient_id ? "Standalone" : "Matched"} entity)
                   </span>
                 </div>
               )}
-              {!resolvedEntity && (
+              {!resolvedEntity && result && (
                 <div style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 11, color: "#f59e0b" }}>⚠ Could not resolve to a specific entity — used text search fallback</span>
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>Matched via text search (entity not in autocomplete index)</span>
                 </div>
               )}
 
