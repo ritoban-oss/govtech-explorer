@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v4");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v5");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -201,22 +201,31 @@ async function resolveRecipient(searchTerms) {
 
     const scored = results
       .map(r => ({ ...r, _score: scoreMatch(r, term) }))
-      .filter(r => r._score > 0 && r.recipient_id);
+      .filter(r => r._score > 0);
 
     console.log(`[Resolver] ${scored.length} passed scoring (>0)`);
 
     if (scored.length === 0) continue;
 
+    // Sort by: score desc, then has-id, then parent preference, then amount desc
     scored.sort((a, b) => {
       if (b._score !== a._score) return b._score - a._score;
+      const aHasId = a.recipient_id ? 1 : 0;
+      const bHasId = b.recipient_id ? 1 : 0;
+      if (bHasId !== aHasId) return bHasId - aHasId;
       const aParent = a.recipient_id?.endsWith("-P") ? 1 : 0;
       const bParent = b.recipient_id?.endsWith("-P") ? 1 : 0;
       if (bParent !== aParent) return bParent - aParent;
       return (b.amount || 0) - (a.amount || 0);
     });
 
-    console.log(`[Resolver] Winner: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
-    return scored[0];
+    console.log(`[Resolver] Best match: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
+    // Only return if the match has a usable recipient_id
+    if (scored[0].recipient_id) {
+      return scored[0];
+    }
+    console.warn(`[Resolver] Best match has no recipient_id — falling through`);
+    continue;
   }
   console.warn(`[Resolver] FAILED - no match for:`, searchTerms);
   return null;
