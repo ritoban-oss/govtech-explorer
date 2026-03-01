@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>GovTech Explorer — Federal Contract Search for Top 100 Tech Companies</title>
+  <meta name="description" content="Free, AI-powered transparency tool that analyzes federal government contracts for the top 100 U.S. tech companies. Powered by live USASpending.gov data and Claude AI." />
+  <meta name="keywords" content="government contracts, federal spending, tech companies, USASpending, government transparency, DOGE, defense contracts, federal procurement, government technology, open data" />
+  <meta name="author" content="Nutgraf Agency" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://govtech-explorer.pages.dev/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://govtech-explorer.pages.dev/" />
+  <meta property="og:title" content="GovTech Explorer — Federal Contract Search for Top 100 Tech Companies" />
+  <meta property="og:description" content="Free, AI-powered transparency tool that analyzes federal government contracts for the top 100 U.S. tech companies. Live data from USASpending.gov." />
+  <meta property="og:site_name" content="GovTech Explorer" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://govtech-explorer.pages.dev/" />
+  <meta name="twitter:title" content="GovTech Explorer — Federal Contract Search for Top 100 Tech Companies" />
+  <meta name="twitter:description" content="Free, AI-powered transparency tool that analyzes federal government contracts for the top 100 U.S. tech companies. Live data from USASpending.gov." />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "GovTech Explorer",
+    "alternateName": "GovTech Contracts and Partnership Explorer",
+    "url": "https://govtech-explorer.pages.dev/",
+    "description": "AI-powered transparency tool that analyzes federal government contracts for the top 100 U.S. tech companies using live USASpending.gov data and Claude AI.",
+    "applicationCategory": "GovernmentApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript. Requires a modern browser.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "Nutgraf Agency"
+    },
+    "isAccessibleForFree": true,
+    "about": {
+      "@type": "Thing",
+      "name": "Federal Government Contracting",
+      "description": "Analysis of U.S. federal contracts awarded to major technology companies, sourced from USASpending.gov."
+    }
+  }
+  </script>
+
+  <!-- Favicons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+
+  <!-- Preconnect to external APIs -->
+  <link rel="preconnect" href="https://api.usaspending.gov" crossorigin />
+  <link rel="dns-prefetch" href="https://api.usaspending.gov" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Inter, system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; }
+    /* Prevent FOUC */
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
