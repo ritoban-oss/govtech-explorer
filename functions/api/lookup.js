@@ -40,20 +40,35 @@ function aggregateByAgency(awards) {
 const ANALYSIS_SYSTEM = `You are a JSON-only API endpoint for a nonpartisan government transparency platform.
 Respond with a single raw JSON object. No markdown, no code fences, no explanation. Pure JSON only.`;
 
-function buildPrompt(company, agencies, totalVal, totalCount) {
-  const topAgencies = agencies.slice(0, 15).map((a) => ({
-    agency: a.name,
-    totalObligated: fmt(a.total),
-    contractCount: a.count,
-    sampleContracts: a.samples,
-  }));
+function buildPrompt(company, agencies, totalVal, totalCount, agencyBreakdown) {
+  // Prefer the spending_by_category agency breakdown (accurate, uses recipient_id filter)
+  // Fall back to awards-derived agency data
+  let topAgencies;
+  if (agencyBreakdown && agencyBreakdown.length > 0) {
+    topAgencies = agencyBreakdown.slice(0, 20).map((a) => ({
+      agency: a.name,
+      totalObligated: fmt(a.amount),
+    }));
+  } else {
+    topAgencies = agencies.slice(0, 15).map((a) => ({
+      agency: a.name,
+      totalObligated: fmt(a.total),
+      contractCount: a.count,
+      sampleContracts: a.samples,
+    }));
+  }
+
+  // Include sample contracts from awards for context
+  const sampleContracts = agencies.slice(0, 10).flatMap(a => a.samples).slice(0, 10);
+
   return `Analyze this federal contracting data for ${company} and return ONLY a JSON object.
 
 SOURCE: USASpending.gov (live data)
 Total awards on record: ${totalCount}
-Total obligated value (top 100 awards): ${fmt(totalVal)}
-Agency breakdown:
+Total obligated value: ${fmt(totalVal)}
+Agency breakdown (by total obligations):
 ${JSON.stringify(topAgencies, null, 2)}
+${sampleContracts.length > 0 ? `\nSample contracts:\n${JSON.stringify(sampleContracts, null, 2)}` : ""}
 
 Classify each agency as: defense, intelligence, law_enforcement, homeland, or civilian.
 Also draw on your training knowledge about documented ethical concerns for this company.
@@ -77,7 +92,7 @@ Return ONLY this JSON:
   "notableContracts": [
     { "description": "Contract description", "value": "Dollar amount", "agency": "Agency name" }
   ],
-  "dataNote": "Data from USASpending.gov. Shows top 100 contracts by value. Federal contracts only."
+  "dataNote": "Data from USASpending.gov. Federal contracts only."
 }
 Include all agencies. Up to 5 notable contracts. Up to 4 ethical concerns (empty array if none).`;
 }
@@ -112,7 +127,7 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
-  const { company, awards, totalCount } = body;
+  const { company, awards, totalCount, totalAmount, agencyBreakdown } = body;
   if (!company || typeof company !== "string" || company.length > 200) {
     return jsonResponse({ error: "Invalid or missing company name" }, 400);
   }
@@ -121,8 +136,8 @@ export async function onRequestPost(context) {
   if (!safeCompany) {
     return jsonResponse({ error: "Company name contains no valid characters" }, 400);
   }
-  if (!Array.isArray(awards) || awards.length === 0) {
-    return jsonResponse({ error: "Missing or empty awards data" }, 400);
+  if (!Array.isArray(awards)) {
+    return jsonResponse({ error: "Missing awards data" }, 400);
   }
   if (awards.length > 200) {
     return jsonResponse({ error: "Awards array exceeds maximum size of 200" }, 400);
@@ -130,8 +145,9 @@ export async function onRequestPost(context) {
   const safeTotalCount = Math.max(0, Math.floor(Number(totalCount) || awards.length));
 
   try {
-    const agencies = aggregateByAgency(awards);
-    const totalVal = awards.reduce((s, a) => s + (a["Award Amount"] || 0), 0);
+    const agencies = awards.length > 0 ? aggregateByAgency(awards) : [];
+    // Use profile-provided totalAmount if available, otherwise sum from awards
+    const totalVal = totalAmount || awards.reduce((s, a) => s + (a["Award Amount"] || 0), 0);
 
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -144,7 +160,7 @@ export async function onRequestPost(context) {
         model: "claude-sonnet-4-20250514",
         max_tokens: 2000,
         system: ANALYSIS_SYSTEM,
-        messages: [{ role: "user", content: buildPrompt(safeCompany, agencies, totalVal, safeTotalCount) }],
+        messages: [{ role: "user", content: buildPrompt(safeCompany, agencies, totalVal, safeTotalCount, agencyBreakdown) }],
       }),
     });
 
