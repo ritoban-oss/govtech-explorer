@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v10");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v11");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -184,19 +184,28 @@ function scoreMatch(result, searchTerm) {
 async function resolveRecipient(searchTerms) {
   for (const term of searchTerms) {
     console.log(`[Resolver] Searching for: "${term}"`);
-    const res = await fetch("https://api.usaspending.gov/api/v2/autocomplete/recipient/", {
+
+    // Use the recipient search endpoint — returns proper IDs with -P/-C/-R suffixes
+    const res = await fetch("https://api.usaspending.gov/api/v2/recipient/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ search_text: term, limit: 50 }),
+      body: JSON.stringify({ keyword: term, limit: 50, order: "desc", sort: "amount" }),
     });
     if (!res.ok) {
       console.warn(`[Resolver] API error ${res.status} for "${term}"`);
       continue;
     }
     const data = await res.json();
-    const results = data?.results || [];
+    const results = (data?.results || []).map(r => ({
+      // Normalize field names to match what the rest of the app expects
+      recipient_name: r.name,
+      recipient_id: r.id,
+      uei: r.uei,
+      amount: r.amount,
+      recipient_level: r.recipient_level,
+    }));
     console.log(`[Resolver] ${results.length} raw results for "${term}":`,
-      results.map(r => `${r.recipient_name} (score:${scoreMatch(r, term)}, id:${r.recipient_id})`));
+      results.map(r => `${r.recipient_name} (score:${scoreMatch(r, term)}, id:${r.recipient_id}, level:${r.recipient_level})`));
     if (results.length === 0) continue;
 
     const scored = results
@@ -207,21 +216,16 @@ async function resolveRecipient(searchTerms) {
 
     if (scored.length === 0) continue;
 
-    // Sort: score desc → has recipient_id → parent (-P) over child (-C) → largest amount
-    // Parent preference only breaks ties between same-name entities at equal scores
+    // Sort: score desc → parent (-P) over child (-C) → largest amount
     scored.sort((a, b) => {
       if (b._score !== a._score) return b._score - a._score;
-      // Prefer results with a recipient_id
-      const aHasId = a.recipient_id ? 1 : 0;
-      const bHasId = b.recipient_id ? 1 : 0;
-      if (bHasId !== aHasId) return bHasId - aHasId;
       const aParent = a.recipient_id?.endsWith("-P") ? 1 : 0;
       const bParent = b.recipient_id?.endsWith("-P") ? 1 : 0;
       if (bParent !== aParent) return bParent - aParent;
       return (b.amount || 0) - (a.amount || 0);
     });
 
-    console.log(`[Resolver] Winner: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
+    console.log(`[Resolver] Winner: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id} level=${scored[0].recipient_level}`);
     return scored[0];
   }
   console.warn(`[Resolver] FAILED - no match for:`, searchTerms);
@@ -473,7 +477,7 @@ export default function App() {
                     </span>
                   )}
                   <span style={{ fontSize: 10, color: "#475569" }}>
-                    ({resolvedEntity.recipient_id?.endsWith("-P") ? "Parent" : resolvedEntity.recipient_id?.endsWith("-C") ? "Child" : resolvedEntity.recipient_id ? "Standalone" : "Matched"} entity)
+                    ({resolvedEntity.recipient_level === "P" ? "Parent" : resolvedEntity.recipient_level === "C" ? "Child" : resolvedEntity.recipient_id ? "Standalone" : "Matched"} entity)
                   </span>
                 </div>
               )}
