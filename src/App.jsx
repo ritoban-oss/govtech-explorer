@@ -22,86 +22,86 @@ const COMPANIES = [
   { name: "Qualcomm", arr: "~$39B", search: ["Qualcomm Incorporated", "Qualcomm Inc"] },
   { name: "Salesforce", arr: "~$36B", search: ["Salesforce Inc", "Salesforce.com"] },
   { name: "SAP America", arr: "~$35B", search: ["SAP America", "SAP Public Services"] },
-  { name: "Hewlett Packard Enterprise", arr: "~$28B", search: ["Hewlett Packard Enterprise"] },
-  { name: "Applied Materials", arr: "~$27B", search: ["Applied Materials Inc"] },
-  { name: "Micron Technology", arr: "~$25B", search: ["Micron Technology Inc"] },
+  { name: "Hewlett Packard Enterprise", arr: "~$28B" },
+  { name: "Applied Materials", arr: "~$27B" },
+  { name: "Micron Technology", arr: "~$25B" },
   { name: "Adobe", arr: "~$21B", search: ["Adobe Inc", "Adobe Systems"] },
   { name: "L3Harris Technologies", arr: "~$21B", search: ["L3Harris", "Harris Corporation"] },
   { name: "Cognizant Technology Solutions", arr: "~$19B", search: ["Cognizant Technology Solutions", "Cognizant"] },
-  { name: "Fiserv", arr: "~$19B", search: ["Fiserv Inc"] },
-  { name: "Texas Instruments", arr: "~$17B", search: ["Texas Instruments Incorporated"] },
+  { name: "Fiserv", arr: "~$19B" },
+  { name: "Texas Instruments", arr: "~$17B" },
   { name: "Jacobs Solutions", arr: "~$16B", search: ["Jacobs Engineering", "Jacobs Solutions"] },
-  { name: "Lam Research", arr: "~$15B", search: ["Lam Research Corporation"] },
-  { name: "Leidos", arr: "~$15B", search: ["Leidos Inc", "Leidos Holdings"] },
-  { name: "DXC Technology", arr: "~$14B", search: ["DXC Technology Company"] },
+  { name: "Lam Research", arr: "~$15B" },
+  { name: "Leidos", arr: "~$15B" },
+  { name: "DXC Technology", arr: "~$14B" },
   { name: "Lumen Technologies", arr: "~$14B", search: ["Lumen Technologies", "CenturyLink"] },
-  { name: "Western Digital", arr: "~$13B", search: ["Western Digital Corporation"] },
-  { name: "Analog Devices", arr: "~$12B", search: ["Analog Devices Inc"] },
+  { name: "Western Digital", arr: "~$13B" },
+  { name: "Analog Devices", arr: "~$12B" },
   { name: "KLA Corporation", arr: "~$10B", search: ["KLA"] },
-  { name: "Booz Allen Hamilton", arr: "~$10B", search: ["Booz Allen Hamilton Inc"] },
-  { name: "ServiceNow", arr: "~$9B", search: ["ServiceNow Inc"] },
-  { name: "Motorola Solutions", arr: "~$9B", search: ["Motorola Solutions Inc"] },
+  { name: "Booz Allen Hamilton", arr: "~$10B" },
+  { name: "ServiceNow", arr: "~$9B" },
+  { name: "Motorola Solutions", arr: "~$9B" },
   { name: "General Dynamics IT", arr: "~$8.4B", search: ["General Dynamics Information Technology", "GDIT"] },
-  { name: "Palo Alto Networks", arr: "~$8B", search: ["Palo Alto Networks Inc"] },
-  { name: "SAIC", arr: "~$7.4B", search: ["Science Applications International", "SAIC Inc"] },
-  { name: "Peraton", arr: "~$7B", search: ["Peraton Inc"] },
-  { name: "Workday", arr: "~$7B", search: ["Workday Inc"] },
+  { name: "Palo Alto Networks", arr: "~$8B" },
+  { name: "SAIC", arr: "~$7.4B" },
+  { name: "Peraton", arr: "~$7B" },
+  { name: "Workday", arr: "~$7B" },
   { name: "Seagate Technology", arr: "~$7B", search: ["Seagate"] },
   { name: "CACI International", arr: "~$6.7B", search: ["CACI"] },
-  { name: "NetApp", arr: "~$6.2B", search: ["NetApp Inc"] },
-  { name: "Gartner", arr: "~$6B", search: ["Gartner Inc"] },
+  { name: "NetApp", arr: "~$6.2B" },
+  { name: "Gartner", arr: "~$6B" },
   { name: "Parsons Corporation", arr: "~$6B", search: ["Parsons"] },
-  { name: "Juniper Networks", arr: "~$5.6B", search: ["Juniper Networks Inc"] },
-  { name: "Fortinet", arr: "~$5.3B", search: ["Fortinet Inc"] },
+  { name: "Juniper Networks", arr: "~$5.6B" },
+  { name: "Fortinet", arr: "~$5.3B" },
   { name: "Keysight Technologies", arr: "~$5B", search: ["Keysight"] },
   { name: "Zebra Technologies", arr: "~$5B", search: ["Zebra Technologies"] },
   { name: "Maximus Inc", arr: "~$4.9B", search: ["Maximus"] },
   { name: "Coherent Corp", arr: "~$4.7B", search: ["Coherent Corp", "II-VI Incorporated"] },
-  { name: "Twilio", arr: "~$4.1B", search: ["Twilio Inc"] },
-  { name: "CrowdStrike", arr: "~$3.9B", search: ["CrowdStrike Inc", "CrowdStrike Holdings"] },
+  { name: "Twilio", arr: "~$4.1B" },
+  { name: "CrowdStrike", arr: "~$3.9B" },
   { name: "Akamai Technologies", arr: "~$3.8B", search: ["Akamai"] },
   { name: "CGI Federal", arr: "~$3.8B", search: ["CGI Federal", "CGI Technologies"] },
   { name: "Trimble Inc", arr: "~$3.7B", search: ["Trimble"] },
-  { name: "Snowflake", arr: "~$3.6B", search: ["Snowflake Inc"] },
-  { name: "Amentum", arr: "~$3.3B", search: ["Amentum Services"] },
-  { name: "Entegris", arr: "~$3B", search: ["Entegris Inc"] },
-  { name: "Pure Storage", arr: "~$3B", search: ["Pure Storage Inc"] },
+  { name: "Snowflake", arr: "~$3.6B" },
+  { name: "Amentum", arr: "~$3.3B" },
+  { name: "Entegris", arr: "~$3B" },
+  { name: "Pure Storage", arr: "~$3B" },
   { name: "Palantir Technologies", arr: "~$2.9B", search: ["Palantir"] },
   { name: "F5 Inc", arr: "~$2.8B", search: ["F5 Networks", "F5 Inc"] },
-  { name: "Datadog", arr: "~$2.7B", search: ["Datadog Inc"] },
-  { name: "Teradyne", arr: "~$2.7B", search: ["Teradyne Inc"] },
-  { name: "HubSpot", arr: "~$2.6B", search: ["HubSpot Inc"] },
+  { name: "Datadog", arr: "~$2.7B" },
+  { name: "Teradyne", arr: "~$2.7B" },
+  { name: "HubSpot", arr: "~$2.6B" },
   { name: "Benchmark Electronics", arr: "~$2.6B", search: ["Benchmark Electronics"] },
   { name: "Guidehouse", arr: "~$2.5B", search: ["Guidehouse"] },
   { name: "Check Point Software", arr: "~$2.4B", search: ["Check Point"] },
-  { name: "Okta", arr: "~$2.4B", search: ["Okta Inc"] },
+  { name: "Okta", arr: "~$2.4B" },
   { name: "Veeva Systems", arr: "~$2.4B", search: ["Veeva"] },
-  { name: "Zscaler", arr: "~$2.2B", search: ["Zscaler Inc"] },
-  { name: "Nutanix", arr: "~$2.1B", search: ["Nutanix Inc"] },
-  { name: "Unisys", arr: "~$2.0B", search: ["Unisys Corporation"] },
+  { name: "Zscaler", arr: "~$2.2B" },
+  { name: "Nutanix", arr: "~$2.1B" },
+  { name: "Unisys", arr: "~$2.0B" },
   { name: "ICF International", arr: "~$2.0B", search: ["ICF International", "ICF Incorporated"] },
   { name: "Tyler Technologies", arr: "~$1.9B", search: ["Tyler Technologies"] },
   { name: "MongoDB", arr: "~$1.9B", search: ["MongoDB Inc", "MongoDB Federal"] },
-  { name: "Teradata", arr: "~$1.8B", search: ["Teradata Corporation"] },
+  { name: "Teradata", arr: "~$1.8B" },
   { name: "Maxar Technologies", arr: "~$1.8B", search: ["Maxar Technologies", "DigitalGlobe"] },
   { name: "Lumentum Holdings", arr: "~$1.6B", search: ["Lumentum"] },
   { name: "EchoStar Corporation", arr: "~$1.6B", search: ["EchoStar"] },
-  { name: "VeriSign", arr: "~$1.5B", search: ["VeriSign Inc"] },
+  { name: "VeriSign", arr: "~$1.5B" },
   { name: "Dynatrace", arr: "~$1.4B", search: ["Dynatrace"] },
   { name: "Elastic NV", arr: "~$1.3B", search: ["Elastic NV", "Elasticsearch"] },
   { name: "Viavi Solutions", arr: "~$1.1B", search: ["Viavi"] },
-  { name: "Synaptics", arr: "~$1.1B", search: ["Synaptics Incorporated"] },
+  { name: "Synaptics", arr: "~$1.1B" },
   { name: "Ciena Corporation", arr: "~$1.0B", search: ["Ciena"] },
   { name: "Tenable Holdings", arr: "~$0.9B", search: ["Tenable"] },
-  { name: "Rapid7", arr: "~$0.8B", search: ["Rapid7 Inc"] },
-  { name: "SentinelOne", arr: "~$0.8B", search: ["SentinelOne Inc"] },
+  { name: "Rapid7", arr: "~$0.8B" },
+  { name: "SentinelOne", arr: "~$0.8B" },
   { name: "Commvault Systems", arr: "~$0.8B", search: ["Commvault"] },
   { name: "Lattice Semiconductor", arr: "~$0.7B", search: ["Lattice Semiconductor"] },
   { name: "Telos Corporation", arr: "~$0.7B", search: ["Telos Corporation"] },
-  { name: "Calix", arr: "~$0.6B", search: ["Calix Inc"] },
+  { name: "Calix", arr: "~$0.6B" },
   { name: "Varonis Systems", arr: "~$0.6B", search: ["Varonis"] },
   { name: "Appian", arr: "~$0.6B", search: ["Appian Corporation"] },
-  { name: "Qualys", arr: "~$0.5B", search: ["Qualys Inc"] },
+  { name: "Qualys", arr: "~$0.5B" },
   { name: "SailPoint Technologies", arr: "~$0.4B", search: ["SailPoint"] },
   { name: "Immersion Corporation", arr: "~$0.1B", search: ["Immersion Corporation"] },
 ];
@@ -223,7 +223,7 @@ export default function App() {
   const [resolvedEntity, setResolvedEntity] = useState(null);
 
   const filtered = COMPANIES.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
-  const API_BASE = "";
+  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
 
   const saveKey = () => {
     localStorage.setItem("anthropic_key", keyInput);
@@ -258,7 +258,8 @@ export default function App() {
       if (recipient?.recipient_id) {
         filters.recipient_id = recipient.recipient_id;
       } else {
-        throw new Error(`Could not resolve "${co.name}" to a USASpending.gov recipient entity. Try a different company.`);
+        // Fallback: use the first search term as text search
+        filters.recipient_search_text = [searchTerms[0]];
       }
 
       const spendingRes = await fetch("https://api.usaspending.gov/api/v2/search/spending_by_award/", {
@@ -452,9 +453,9 @@ export default function App() {
                   </span>
                 </div>
               )}
-              {!resolvedEntity && !error && (
+              {!resolvedEntity && (
                 <div style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>Resolving entity…</span>
+                  <span style={{ fontSize: 11, color: "#f59e0b" }}>⚠ Could not resolve to a specific entity — used text search fallback</span>
                 </div>
               )}
 
