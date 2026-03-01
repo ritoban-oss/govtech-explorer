@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v7");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v10");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -38,7 +38,6 @@ const COMPANIES = [
   { name: "Lumen Technologies", arr: "~$14B", search: ["Lumen Technologies", "CenturyLink"] },
   { name: "Western Digital", arr: "~$13B", search: ["Western Digital Corporation"] },
   { name: "Analog Devices", arr: "~$12B", search: ["Analog Devices Inc"] },
-  { name: "OpenAI", arr: "~$12B", search: ["OpenAI", "OpenAI OpCo", "OpenAI Inc"] },
   { name: "KLA Corporation", arr: "~$10B", search: ["KLA"] },
   { name: "Booz Allen Hamilton", arr: "~$10B", search: ["Booz Allen Hamilton Inc"] },
   { name: "ServiceNow", arr: "~$9B", search: ["ServiceNow Inc"] },
@@ -74,6 +73,7 @@ const COMPANIES = [
   { name: "HubSpot", arr: "~$2.6B", search: ["HubSpot Inc"] },
   { name: "Benchmark Electronics", arr: "~$2.6B", search: ["Benchmark Electronics"] },
   { name: "Guidehouse", arr: "~$2.5B", search: ["Guidehouse"] },
+  { name: "Databricks", arr: "~$2.4B", search: ["Databricks Inc", "Databricks Federal"] },
   { name: "Check Point Software", arr: "~$2.4B", search: ["Check Point"] },
   { name: "Okta", arr: "~$2.4B", search: ["Okta Inc"] },
   { name: "Veeva Systems", arr: "~$2.4B", search: ["Veeva"] },
@@ -187,7 +187,7 @@ async function resolveRecipient(searchTerms) {
     const res = await fetch("https://api.usaspending.gov/api/v2/autocomplete/recipient/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ search_text: term, limit: 20 }),
+      body: JSON.stringify({ search_text: term, limit: 50 }),
     });
     if (!res.ok) {
       console.warn(`[Resolver] API error ${res.status} for "${term}"`);
@@ -207,7 +207,8 @@ async function resolveRecipient(searchTerms) {
 
     if (scored.length === 0) continue;
 
-    // Sort by: score desc, then parent preference, then amount desc
+    // Sort: score desc → has recipient_id → parent (-P) over child (-C) → largest amount
+    // Parent preference only breaks ties between same-name entities at equal scores
     scored.sort((a, b) => {
       if (b._score !== a._score) return b._score - a._score;
       // Prefer results with a recipient_id
