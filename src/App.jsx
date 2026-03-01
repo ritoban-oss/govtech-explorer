@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v3");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v4");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -38,6 +38,7 @@ const COMPANIES = [
   { name: "Lumen Technologies", arr: "~$14B", search: ["Lumen Technologies", "CenturyLink"] },
   { name: "Western Digital", arr: "~$13B", search: ["Western Digital Corporation"] },
   { name: "Analog Devices", arr: "~$12B", search: ["Analog Devices Inc"] },
+  { name: "OpenAI", arr: "~$12B", search: ["OpenAI", "OpenAI OpCo", "OpenAI Inc"] },
   { name: "KLA Corporation", arr: "~$10B", search: ["KLA"] },
   { name: "Booz Allen Hamilton", arr: "~$10B", search: ["Booz Allen Hamilton Inc"] },
   { name: "ServiceNow", arr: "~$9B", search: ["ServiceNow Inc"] },
@@ -63,7 +64,6 @@ const COMPANIES = [
   { name: "Akamai Technologies", arr: "~$3.8B", search: ["Akamai"] },
   { name: "CGI Federal", arr: "~$3.8B", search: ["CGI Federal", "CGI Technologies"] },
   { name: "Trimble Inc", arr: "~$3.7B", search: ["Trimble"] },
-  { name: "Snowflake", arr: "~$3.6B", search: ["Snowflake Inc"] },
   { name: "Amentum", arr: "~$3.3B", search: ["Amentum Services"] },
   { name: "Entegris", arr: "~$3B", search: ["Entegris Inc"] },
   { name: "Pure Storage", arr: "~$3B", search: ["Pure Storage Inc"] },
@@ -201,7 +201,7 @@ async function resolveRecipient(searchTerms) {
 
     const scored = results
       .map(r => ({ ...r, _score: scoreMatch(r, term) }))
-      .filter(r => r._score > 0);
+      .filter(r => r._score > 0 && r.recipient_id);
 
     console.log(`[Resolver] ${scored.length} passed scoring (>0)`);
 
