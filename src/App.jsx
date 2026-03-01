@@ -1,4 +1,5 @@
 import { useState } from "react";
+console.log("[GovTech] App version: DEBUG-2026-03-01");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -177,24 +178,30 @@ function scoreMatch(result, searchTerm) {
  */
 async function resolveRecipient(searchTerms) {
   for (const term of searchTerms) {
+    console.log(`[Resolver] Searching for: "${term}"`);
     const res = await fetch("https://api.usaspending.gov/api/v2/autocomplete/recipient/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ search_text: term, limit: 10 }),
     });
-    if (!res.ok) continue;
+    if (!res.ok) {
+      console.warn(`[Resolver] API error ${res.status} for "${term}"`);
+      continue;
+    }
     const data = await res.json();
     const results = data?.results || [];
+    console.log(`[Resolver] ${results.length} raw results for "${term}":`,
+      results.map(r => `${r.recipient_name} (score:${scoreMatch(r, term)}, id:${r.recipient_id})`));
     if (results.length === 0) continue;
 
-    // Score each result and discard clearly unrelated ones
     const scored = results
       .map(r => ({ ...r, _score: scoreMatch(r, term) }))
       .filter(r => r._score > 0);
 
+    console.log(`[Resolver] ${scored.length} passed scoring (>0)`);
+
     if (scored.length === 0) continue;
 
-    // Sort by: score desc, then parent preference, then amount desc (as tiebreaker)
     scored.sort((a, b) => {
       if (b._score !== a._score) return b._score - a._score;
       const aParent = a.recipient_id?.endsWith("-P") ? 1 : 0;
@@ -203,8 +210,10 @@ async function resolveRecipient(searchTerms) {
       return (b.amount || 0) - (a.amount || 0);
     });
 
+    console.log(`[Resolver] Winner: "${scored[0].recipient_name}" score=${scored[0]._score} id=${scored[0].recipient_id}`);
     return scored[0];
   }
+  console.warn(`[Resolver] FAILED - no match for:`, searchTerms);
   return null;
 }
 
