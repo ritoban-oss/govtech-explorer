@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-01-v2");
+console.log("[GovTech] App version: DEBUG-2026-03-01-v3");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `search` overrides the display name when querying USASpending recipient autocomplete.
@@ -167,7 +167,7 @@ function scoreMatch(result, searchTerm) {
   if (name.includes(term)) return 50;
 
   // Search term contained in name but not at start — weaker signal
-  if (name.includes(termFirst) && termFirst.length >= 4) return 30;
+  if (name.includes(termWords[0]) && termWords[0].length >= 4) return 30;
 
   // No meaningful match — penalise
   return -1;
