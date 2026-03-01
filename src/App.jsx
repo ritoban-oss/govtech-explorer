@@ -1,5 +1,5 @@
 import { useState } from "react";
-console.log("[GovTech] App version: DEBUG-2026-03-02-v15");
+console.log("[GovTech] App version: DEBUG-2026-03-02-v16");
 
 // Top ~100 US tech companies ranked by approximate annual revenue (public filings, FY2024)
 // `rid` = hardcoded USASpending recipient_id for precise contract lookups.
@@ -281,30 +281,60 @@ export default function App() {
       }
       setResolvedEntity(recipient);
 
-      // Step 2: Fetch awards
-      setLoadingMsg("Querying USASpending.gov…");
-      const filters = {
-        award_type_codes: ["A", "B", "C", "D"],
-        time_period: [{ start_date: "2007-10-01", end_date: "2025-12-31" }],
-      };
-
-      if (recipient?.recipient_id) {
-        filters.recipient_id = recipient.recipient_id;
-        console.log(`[Awards] Filtering by recipient_id: ${recipient.recipient_id}`);
-      } else {
-        // Fallback: text search if no entity was resolved
-        filters.recipient_search_text = [searchTerms[0]];
-        console.log(`[Awards] Fallback: recipient_search_text: "${searchTerms[0]}"`);
+      if (!recipient?.recipient_id) {
+        throw new Error(`Could not resolve "${co.name}" to a USASpending recipient entity.`);
       }
 
+      const rid = recipient.recipient_id;
+      const ridHash = rid.replace(/-[PCR]$/, ""); // hash without level suffix for matching
+
+      // Step 2: Fetch recipient profile — gives accurate totals
+      setLoadingMsg("Fetching recipient profile…");
+      const profileRes = await fetch(`https://api.usaspending.gov/api/v2/recipient/${rid}/?year=all`);
+      let profileData = null;
+      if (profileRes.ok) {
+        profileData = await profileRes.json();
+        console.log(`[Profile] ${profileData.name}: $${(profileData.total_transaction_amount/1e9).toFixed(2)}B across ${profileData.total_transactions} transactions`);
+      }
+
+      // Step 3: Fetch per-agency breakdown via spending_by_category (accepts recipient_id properly)
+      setLoadingMsg("Fetching agency breakdown…");
+      const catRes = await fetch("https://api.usaspending.gov/api/v2/search/spending_by_category/awarding_agency/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filters: {
+            recipient_id: rid,
+            award_type_codes: ["A", "B", "C", "D"],
+            time_period: [{ start_date: "2007-10-01", end_date: "2025-12-31" }],
+          },
+          limit: 50,
+          page: 1,
+        }),
+      });
+      let agencyBreakdown = [];
+      if (catRes.ok) {
+        const catData = await catRes.json();
+        agencyBreakdown = (catData.results || []).filter(r => r.amount > 0);
+        console.log(`[Category] ${agencyBreakdown.length} agencies with spending`);
+      }
+
+      // Step 4: Fetch individual award details via spending_by_award
+      // This endpoint requires recipient_search_text (not recipient_id) as a filter
+      setLoadingMsg("Querying contract details…");
       const spendingRes = await fetch("https://api.usaspending.gov/api/v2/search/spending_by_award/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          filters,
+          filters: {
+            award_type_codes: ["A", "B", "C", "D"],
+            time_period: [{ start_date: "2007-10-01", end_date: "2025-12-31" }],
+            recipient_search_text: [searchTerms[0]],
+          },
           fields: [
             "Award ID",
             "Recipient Name",
+            "recipient_id",
             "Awarding Agency",
             "Awarding Sub Agency",
             "Award Amount",
@@ -324,19 +354,37 @@ export default function App() {
         throw new Error(`USASpending error ${spendingRes.status}: ${errText.slice(0, 200)}`);
       }
       const spendingData = await spendingRes.json();
-      const awards = spendingData.results || [];
-      const totalCount = spendingData.page_metadata?.total || awards.length;
+      const rawAwards = spendingData.results || [];
 
-      if (awards.length === 0) {
+      // Client-side filter: only keep awards whose recipient_id matches our resolved entity
+      const awards = rawAwards.filter(a => {
+        if (!a.recipient_id) return false;
+        const awardHash = a.recipient_id.replace(/-[PCR]$/, "");
+        return awardHash === ridHash;
+      });
+      console.log(`[Awards] ${rawAwards.length} raw → ${awards.length} after recipient_id filter (hash: ${ridHash})`);
+
+      // Use profile data for accurate totals, awards for details
+      const totalCount = profileData?.total_transactions || awards.length;
+      const totalAmount = profileData?.total_transaction_amount || 0;
+
+      if (awards.length === 0 && agencyBreakdown.length === 0) {
         throw new Error(`No federal contracts found for "${co.name}" on USASpending.gov. This company may not have significant federal contracting activity.`);
       }
 
-      // Step 3: send award data to local server for Claude analysis
+      // Step 5: send combined data to local server for Claude analysis
       setLoadingMsg("Analyzing with Claude AI…");
       const res = await fetch(`${API_BASE}/api/lookup`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-anthropic-key": apiKey },
-        body: JSON.stringify({ company: co.name, awards, totalCount }),
+        body: JSON.stringify({
+          company: co.name,
+          awards,
+          totalCount,
+          totalAmount,
+          agencyBreakdown,
+          recipientName: profileData?.name || recipient.recipient_name,
+        }),
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
